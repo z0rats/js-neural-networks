@@ -1,4 +1,5 @@
 # js-neural-networks
+[![Maintainability](https://api.codeclimate.com/v1/badges/41779aa07a62fce92dda/maintainability)](https://codeclimate.com/github/v0xat/js-neural-networks/maintainability)
 
 Этот репоизторий содержит JS реализации различных нейросетей и задач машинного обучения, выполненные в рамках университетских лабораторных работ.
 ## Требования
