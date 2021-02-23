@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Визуализация нейросети Хопфилда</title>
+  </head>
+  <body style="text-align:center;">
+    <canvas id="userCanvas" width="450" height="450" style="border: 1px solid #ccc; margin:10px;">
+      Ваш браузер не поддерживает Canvas
+    </canvas>
+    <canvas id="netCanvas" width="450" height="450" style="border: 1px solid #ccc; margin:10px;">
+      Ваш браузер не поддерживает Canvas
+    </canvas>
+    <br>
+    <button id="resetButton" style="line-height: 30px; width: 200px; border: 1px solid black;">
+      Очистить
+    </button>
+    <button id="memoryButton" style="line-height: 30px; width: 200px; border: 1px solid black;">
+      Запомнить
+    </button>
+    <button id="recognizeButton" style="line-height: 30px; width: 200px; border: 1px solid black;">
+      Распознать
+    </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script>
+      const gridSize = 10;
+      const squareSize = 45;
+      const inputNodes = 100;
+      const weights = [];
+      let userImageData = [];
+      for (let i = 0; i < inputNodes; i += 1) {
+        weights[i] = new Array(inputNodes).fill(0);
+        userImageData[i] = -1;
+      }
+
+      const calcIndex = (x, y, size) => x + y * size;
+
+      const isIndexValid = (index, len) => index < len && index >= 0;
+
+      const getNewSquareCoords = (canvas, clientX, clientY, size) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.ceil((clientX - rect.left) / size) - 1;
+        const y = Math.ceil((clientY - rect.top) / size) - 1;
+        return { x, y };
+      };
+
+      const userCanvas = document.getElementById('userCanvas');
+      const userContext = userCanvas.getContext('2d');
+      const netCanvas = document.getElementById('netCanvas');
+      const netContext = netCanvas.getContext('2d');
+
+      let isDrawing = false;
+
+      const drawGrid = (ctx) => {
+        ctx.beginPath();
+        ctx.fillStyle = 'white';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'black';
+        for (let row = 0; row < gridSize; row += 1) {
+          for (let column = 0; column < gridSize; column += 1) {
+            const x = column * squareSize;
+            const y = row * squareSize;
+            ctx.rect(x, y, squareSize, squareSize);
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
+        ctx.closePath();
+      };
+
+      const drawImageFromArray = (data, ctx) => {
+        const twoDimData = [];
+        while (data.length) twoDimData.push(data.splice(0, gridSize));
+
+        drawGrid(ctx);
+        for (let i = 0; i < gridSize; i += 1) {
+          for (let j = 0; j < gridSize; j += 1) {
+            if (twoDimData[i][j] === 1) {
+              ctx.fillStyle = 'black';
+              ctx.fillRect((j * squareSize), (i * squareSize), squareSize, squareSize);
+            }
+          }
+        }
+      };
+
+      const handleMouseDown = (e) => {
+        userContext.fillStyle = 'black';
+        userContext.fillRect(
+          Math.floor(e.offsetX / squareSize) * squareSize,
+          Math.floor(e.offsetY / squareSize) * squareSize,
+          squareSize, squareSize,
+        );
+
+        const { clientX, clientY } = e;
+        const coords = getNewSquareCoords(userCanvas, clientX, clientY, squareSize);
+        const index = calcIndex(coords.x, coords.y, gridSize);
+
+        if (isIndexValid(index, inputNodes) && userImageData[index] !== 1) {
+          userImageData[index] = 1;
+        }
+
+        isDrawing = true;
+      };
+
+      const handleMouseMove = (e) => {
+        if (!isDrawing) return;
+
+        userContext.fillStyle = 'black';
+        userContext.fillRect(
+          Math.floor(e.offsetX / squareSize) * squareSize,
+          Math.floor(e.offsetY / squareSize) * squareSize,
+          squareSize, squareSize,
+        );
+
+        const rect = userCanvas.getBoundingClientRect();
+        const x = Math.ceil((e.clientX - rect.left) / squareSize) - 1;
+        const y = Math.ceil((e.clientY - rect.top) / squareSize) - 1;
+        const index = calcIndex(x, y, gridSize);
+
+        if (isIndexValid(index, inputNodes) && userImageData[index] !== 1) {
+          userImageData[index] = 1;
+        }
+      };
+
+      const stopDrawing = () => {
+        isDrawing = false;
+      };
+
+      const clearCurrentImage = () => {
+        drawGrid(userContext);
+        drawGrid(netContext);
+        userImageData = new Array(gridSize * gridSize).fill(-1);
+      };
+
+      const memorizeImage = () => {
+        for (let i = 0; i < inputNodes; i += 1) {
+          for (let j = 0; j < inputNodes; j += 1) {
+            if (i === j) weights[i][j] = 0;
+            else {
+              weights[i][j] += userImageData[i] * userImageData[j];
+            }
+          }
+        }
+      };
+
+      const recognizeSignal = () => {
+        let prevNetState;
+        const currNetState = new Array(inputNodes);
+        do {
+          prevNetState = [...currNetState];
+          for (let i = 0; i < inputNodes; i += 1) {
+            let sum = 0;
+            for (let j = 0; j < inputNodes; j += 1) {
+              sum += weights[i][j] * userImageData[j];
+            }
+            currNetState[i] = sum >= 0 ? 1 : -1;
+          }
+        } while (!_.isEqual(currNetState, prevNetState));
+      
+        drawImageFromArray(currNetState, netContext);
+      };
+
+      const resetButton = document.getElementById('resetButton');
+      const memoryButton = document.getElementById('memoryButton');
+      const recognizeButton = document.getElementById('recognizeButton');
+
+      userCanvas.addEventListener('mousedown', (e) => handleMouseDown(e));
+      userCanvas.addEventListener('mousemove', (e) => handleMouseMove(e));
+      userCanvas.addEventListener('mouseup', () => stopDrawing());
+      userCanvas.addEventListener('mouseleave', () => stopDrawing());
+
+      resetButton.addEventListener('click', () => clearCurrentImage());
+      memoryButton.addEventListener('click', () => memorizeImage());
+      recognizeButton.addEventListener('click', () => recognizeSignal());
+
+      drawGrid(userContext);
+      drawGrid(netContext);
+    </script>
+  </body>
+</html>
