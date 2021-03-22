@@ -2,3 +2,6 @@
 *
 # Except this file
 !.gitignore
+!mnist_train_100.csv
+!mnist_test_10.csv
+!weather_forecast.csv
