@@ -2,6 +2,7 @@ import { transpose } from './utils.js';
 
 const dataNormalization = {
   normalize: {
+    image: (data) => data.map((x) => (x / 255) * 0.99 + 0.01),
     minMax: (data) => {
       const normalized = [];
       const transposed = transpose(data);

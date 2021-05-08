@@ -1,5 +1,6 @@
 import path from 'path';
 import _ from 'lodash';
+import dataNormalization from '../utils/dataNormalization.js';
 import { extractFirstColumn, smallValuesArr, readCsv } from '../utils/utils.js';
 import NeuralNetwork from './core/NeuralNetwork.js';
 
@@ -23,8 +24,8 @@ import NeuralNetwork from './core/NeuralNetwork.js';
   const hrstart = process.hrtime();
   console.log('Старт обучения: ', start.toTimeString());
   for (let epoch = 0; epoch < 1; epoch += 1) {
-    trainData.forEach((record, i) => {
-      const inputs = record.map((x) => (x / 255) * 0.99 + 0.01);
+    trainData.forEach((data, i) => {
+      const inputs = dataNormalization.normalize.image(data);
       const targets = smallValuesArr(outputNodes);
       targets[trainExpected[i]] = 0.99;
       net.train(inputs, targets);
@@ -36,8 +37,8 @@ import NeuralNetwork from './core/NeuralNetwork.js';
   console.log('Время исполнения (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
 
   let wrongCount = 0;
-  testData.forEach((record, i) => {
-    const inputs = record.map((x) => (x / 255) * 0.99 + 0.01);
+  testData.forEach((data, i) => {
+    const inputs = dataNormalization.normalize.image(data);
     net.init(inputs);
     const result = net.runSigmoid();
 
