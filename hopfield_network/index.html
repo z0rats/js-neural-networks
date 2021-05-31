@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="style.css">
     <meta charset="utf-8">
     <title>Визуализация нейросети Хопфилда</title>
   </head>
-  <body style="text-align:center;">
-    <canvas id="userCanvas" width="450" height="450" style="border: 1px solid #ccc; margin:10px;">
+  <body>
+    <label>Входной сигнал</label>
+    <canvas id="userCanvas" width="450" height="450">
       Ваш браузер не поддерживает Canvas
     </canvas>
-    <canvas id="netCanvas" width="450" height="450" style="border: 1px solid #ccc; margin:10px;">
+    <label>Восстановленный сигнал</label>
+    <canvas id="netCanvas" width="450" height="450">
       Ваш браузер не поддерживает Canvas
     </canvas>
     <br>
-    <button id="resetButton" style="line-height: 30px; width: 200px; border: 1px solid black;">
+    <button id="resetButton">
       Очистить
     </button>
-    <button id="memoryButton" style="line-height: 30px; width: 200px; border: 1px solid black;">
+    <button id="memoryButton">
       Запомнить
     </button>
-    <button id="recognizeButton" style="line-height: 30px; width: 200px; border: 1px solid black;">
+    <button id="recognizeButton">
       Распознать
     </button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
@@ -26,16 +29,22 @@
       const gridSize = 10;
       const squareSize = 45;
       const inputNodes = 100;
+      let isDrawing = false;
       const weights = [];
-      let userImageData = [];
+      let userImageState = [];
       for (let i = 0; i < inputNodes; i += 1) {
         weights[i] = new Array(inputNodes).fill(0);
-        userImageData[i] = -1;
+        userImageState[i] = -1;
       }
+
+      const userCanvas = document.getElementById('userCanvas');
+      const userContext = userCanvas.getContext('2d');
+      const netCanvas = document.getElementById('netCanvas');
+      const netContext = netCanvas.getContext('2d');
 
       const calcIndex = (x, y, size) => x + y * size;
 
-      const isIndexValid = (index, len) => index < len && index >= 0;
+      const isValidIndex = (index, len) => index < len && index >= 0;
 
       const getNewSquareCoords = (canvas, clientX, clientY, size) => {
         const rect = canvas.getBoundingClientRect();
@@ -43,13 +52,6 @@
         const y = Math.ceil((clientY - rect.top) / size) - 1;
         return { x, y };
       };
-
-      const userCanvas = document.getElementById('userCanvas');
-      const userContext = userCanvas.getContext('2d');
-      const netCanvas = document.getElementById('netCanvas');
-      const netContext = netCanvas.getContext('2d');
-
-      let isDrawing = false;
 
       const drawGrid = (ctx) => {
         ctx.beginPath();
@@ -95,8 +97,8 @@
         const coords = getNewSquareCoords(userCanvas, clientX, clientY, squareSize);
         const index = calcIndex(coords.x, coords.y, gridSize);
 
-        if (isIndexValid(index, inputNodes) && userImageData[index] !== 1) {
-          userImageData[index] = 1;
+        if (isValidIndex(index, inputNodes) && userImageState[index] !== 1) {
+          userImageState[index] = 1;
         }
 
         isDrawing = true;
@@ -112,13 +114,12 @@
           squareSize, squareSize,
         );
 
-        const rect = userCanvas.getBoundingClientRect();
-        const x = Math.ceil((e.clientX - rect.left) / squareSize) - 1;
-        const y = Math.ceil((e.clientY - rect.top) / squareSize) - 1;
-        const index = calcIndex(x, y, gridSize);
+        const { clientX, clientY } = e;
+        const coords = getNewSquareCoords(userCanvas, clientX, clientY, squareSize);
+        const index = calcIndex(coords.x, coords.y, gridSize);
 
-        if (isIndexValid(index, inputNodes) && userImageData[index] !== 1) {
-          userImageData[index] = 1;
+        if (isValidIndex(index, inputNodes) && userImageState[index] !== 1) {
+          userImageState[index] = 1;
         }
       };
 
@@ -129,7 +130,7 @@
       const clearCurrentImage = () => {
         drawGrid(userContext);
         drawGrid(netContext);
-        userImageData = new Array(gridSize * gridSize).fill(-1);
+        userImageState = new Array(gridSize * gridSize).fill(-1);
       };
 
       const memorizeImage = () => {
@@ -137,7 +138,7 @@
           for (let j = 0; j < inputNodes; j += 1) {
             if (i === j) weights[i][j] = 0;
             else {
-              weights[i][j] += userImageData[i] * userImageData[j];
+              weights[i][j] += userImageState[i] * userImageState[j];
             }
           }
         }
@@ -151,7 +152,7 @@
           for (let i = 0; i < inputNodes; i += 1) {
             let sum = 0;
             for (let j = 0; j < inputNodes; j += 1) {
-              sum += weights[i][j] * userImageData[j];
+              sum += weights[i][j] * userImageState[j];
             }
             currNetState[i] = sum >= 0 ? 1 : -1;
           }

@@ -1,0 +1,32 @@
+body {
+  text-align: center;
+  display: block;
+  position: relative;
+}
+
+label {
+  font-size: large;
+  position: absolute;
+}
+
+canvas {
+  border: 1px solid #ccc;
+  margin: 30px;
+}
+
+button {
+  background: #ededed;
+  width: 175px;
+  border: 1px solid black;
+  padding: 10px 30px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button:active {
+  background: #e5e5e5;
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+     -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+          box-shadow: inset 0px 0px 5px #c1c1c1;
+   outline: none;
+}
