@@ -146,13 +146,13 @@
 
       const recognizeSignal = () => {
         let prevNetState;
-        const currNetState = new Array(inputNodes);
+        const currNetState = [...userImageState];
         do {
           prevNetState = [...currNetState];
           for (let i = 0; i < inputNodes; i += 1) {
             let sum = 0;
             for (let j = 0; j < inputNodes; j += 1) {
-              sum += weights[i][j] * userImageState[j];
+              sum += weights[i][j] * prevNetState[j];
             }
             currNetState[i] = sum >= 0 ? 1 : -1;
           }
