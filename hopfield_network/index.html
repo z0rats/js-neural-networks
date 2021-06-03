@@ -6,29 +6,38 @@
     <title>Визуализация нейросети Хопфилда</title>
   </head>
   <body>
-    <label>Входной сигнал</label>
-    <canvas id="userCanvas" width="450" height="450">
-      Ваш браузер не поддерживает Canvas
-    </canvas>
-    <label>Восстановленный сигнал</label>
-    <canvas id="netCanvas" width="450" height="450">
-      Ваш браузер не поддерживает Canvas
-    </canvas>
-    <br>
-    <button id="resetButton">
-      Очистить
-    </button>
-    <button id="memoryButton">
-      Запомнить
-    </button>
-    <button id="recognizeButton">
-      Распознать
-    </button>
+    <div>
+      <label for="userCanvas">Входной сигнал</label>
+      <canvas id="userCanvas" width="450" height="450">
+        Ваш браузер не поддерживает Canvas
+      </canvas>
+      <label for="netCanvas">Восстановленный сигнал</label>
+      <canvas id="netCanvas" width="450" height="450">
+        Ваш браузер не поддерживает Canvas
+      </canvas>
+    </div>
+    <div>
+      <label for="stepper" style="position: relative;">Размер сетки</label>
+      <input type="range" id="stepper" min="4" max="12" value="10" step="1">
+    </div>
+    <div>
+      <button id="resetButton">
+        Очистить
+      </button>
+      <button id="memoryButton">
+        Запомнить
+      </button>
+      <button class="popup" id="recognizeButton">
+        Распознать
+        <span class="popuptext" id="popup">Не могу вспомнить образ :(</span>
+      </button>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script>
-      const gridSize = 10;
+      const stepper = document.getElementById('stepper');
+      let gridSize = stepper.value;
       const squareSize = 45;
-      const inputNodes = 100;
+      let inputNodes = gridSize * gridSize;
       let isDrawing = false;
       const weights = [];
       let userImageState = [];
@@ -68,6 +77,23 @@
           }
         }
         ctx.closePath();
+      };
+
+      const changeGridSize = (newSize) => {
+        gridSize = newSize;
+        inputNodes = newSize * newSize;
+        userImageState = [];
+        for (let i = 0; i < inputNodes; i += 1) {
+          weights[i] = new Array(inputNodes).fill(0);
+          userImageState[i] = -1;
+        }
+
+        userCanvas.width = newSize * squareSize;
+        userCanvas.height = newSize * squareSize;
+        netCanvas.width = newSize * squareSize;
+        netCanvas.height = newSize * squareSize;
+        drawGrid(userContext);
+        drawGrid(netContext);
       };
 
       const drawImageFromArray = (data, ctx) => {
@@ -147,7 +173,9 @@
       const recognizeSignal = () => {
         let prevNetState;
         const currNetState = [...userImageState];
+        let counter = 0;
         do {
+          counter += 1;
           prevNetState = [...currNetState];
           for (let i = 0; i < inputNodes; i += 1) {
             let sum = 0;
@@ -155,6 +183,12 @@
               sum += weights[i][j] * prevNetState[j];
             }
             currNetState[i] = sum >= 0 ? 1 : -1;
+          }
+          if (counter === 999) {
+            const popup = document.getElementById('popup');
+            popup.classList.toggle('show');
+            console.log('Не могу вспомнить образ :(');
+            return;
           }
         } while (!_.isEqual(currNetState, prevNetState));
       
@@ -173,6 +207,7 @@
       resetButton.addEventListener('click', () => clearCurrentImage());
       memoryButton.addEventListener('click', () => memorizeImage());
       recognizeButton.addEventListener('click', () => recognizeSignal());
+      stepper.addEventListener('change', () => changeGridSize(Number(stepper.value)));
 
       drawGrid(userContext);
       drawGrid(netContext);
