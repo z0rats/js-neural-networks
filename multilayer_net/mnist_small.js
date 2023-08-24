@@ -5,8 +5,8 @@ import { extractFirstColumn, smallValuesArr, readCsv } from '../utils/utils.js';
 import NeuralNetwork from './core/NeuralNetwork.js';
 
 (async () => {
-  const pathToTrain = path.join(process.cwd(), 'datasets/mnist_train_100.csv');
-  const pathToTest = path.join(process.cwd(), 'datasets/mnist_test_10.csv');
+  const pathToTrain = path.join(process.cwd(), '../datasets/mnist_train_100.csv');
+  const pathToTest = path.join(process.cwd(), '../datasets/mnist_test_10.csv');
   const trainData = await readCsv(pathToTrain);
   const testData = await readCsv(pathToTest);
 
