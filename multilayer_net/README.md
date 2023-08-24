@@ -32,7 +32,7 @@ $ node iris.js
   ```
   или
   ```
-  $ node mnist-small.js
+  $ node mnist_small.js
   ```  
 - На полном наборе (может занимать до нескольких минут):  
 Скачать датасет [MNIST](https://pjreddie.com/projects/mnist-in-csv/) и поместить в папку `datasets/`  
@@ -42,7 +42,7 @@ $ node iris.js
   ```
   или
   ```
-  $ node mnist-large.js
+  $ node mnist_large.js
   ```  
 ---
 ### Прогнозирование  

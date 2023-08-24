@@ -4,7 +4,7 @@ import dataNormalization from '../utils/dataNormalization.js';
 import NeuralNetwork from './core/NeuralNetwork.js';
 
 (async () => {
-  const pathToDataset = path.join(process.cwd(), 'datasets/weather_forecast.csv');
+  const pathToDataset = path.join(process.cwd(), '../datasets/weather_forecast.csv');
   const dataset = await readCsv(pathToDataset);
 
   extractFirstColumn(dataset);

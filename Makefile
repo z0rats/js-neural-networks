@@ -8,13 +8,13 @@ fix:
 	npx eslint --fix .
 
 iris-mnn:
-	node multilayer_net/iris.js
+	cd multilayer_net && node iris.js
 
 mnist-large:
-	node multilayer_net/mnist_large.js
+	cd multilayer_net && node mnist_large.js
 
 mnist-small:
-	node multilayer_net/mnist_small.js
+	cd multilayer_net && node mnist_small.js
 
 weather:
-	node multilayer_net/weatherPrediction.js
+	cd multilayer_net && node weatherPrediction.js
