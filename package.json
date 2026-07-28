@@ -6,7 +6,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "papaparse": "^5.5.4"
   },
   "devDependencies": {
