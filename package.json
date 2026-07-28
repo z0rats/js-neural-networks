@@ -2,7 +2,7 @@
   "name": "js-neural-networks",
   "type": "module",
   "dependencies": {
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "papaparse": "^5.4.1"
   },
   "devDependencies": {
