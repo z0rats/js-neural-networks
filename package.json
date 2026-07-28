@@ -1,6 +1,10 @@
 {
   "name": "js-neural-networks",
   "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "lint": "eslint ."
+  },
   "dependencies": {
     "lodash": "^4.17.21",
     "papaparse": "^5.4.1"
