@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "papaparse": "^5.4.1"
+    "papaparse": "^5.5.4"
   },
   "devDependencies": {
     "eslint": "^10.8.0",
