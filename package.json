@@ -3,7 +3,7 @@
   "type": "module",
   "dependencies": {
     "lodash": "^4.17.21",
-    "papaparse": "^5.4.1"
+    "papaparse": "^5.5.4"
   },
   "devDependencies": {
     "eslint": "^8.47.0",
